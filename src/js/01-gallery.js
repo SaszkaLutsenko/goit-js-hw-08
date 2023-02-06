@@ -1,26 +1,17 @@
 import { galleryItems } from './gallery-items.js';
 import SimpleLightbox from 'simplelightbox';
+import templateFunction from '../templates/item-markup.hbs';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const galleryEl = document.querySelector('.gallery');
+const galleryRefs = document.querySelector('.gallery');
 
-galleryEl.insertAdjacentHTML('beforeend', renderGalleryItems());
-
-function renderGalleryItems() {
-  return galleryItems
-    .map(
-      ({ original, preview, description }) =>
-        `<div class="gallery__item">
-            <a class="gallery__link" href="${original}">
-             <img class="gallery__image" src="${preview}" alt="${description}" />
-            </a>
-        </div>`
-    )
-    .join('');
-}
+(function createMarkup() {
+  const itemMarkup = galleryItems.map(templateFunction).join('');
+  galleryRefs.insertAdjacentHTML('beforeend', itemMarkup);
+})();
 
 new SimpleLightbox('.gallery a', {
+  captions: true,
   captionsData: 'alt',
   captionDelay: 250,
-  scrollZoomFactor: false,
 });

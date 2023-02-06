@@ -1,46 +1,29 @@
-import _throttle from 'lodash.throttle';
-const formEl = document.querySelector('.feedback-form');
-const LOCAL_STORAGE_KEY = 'feedback-form-state';
+import throttle from 'lodash.throttle';
 
-let data = {};
+const form = document.querySelector('.feedback-form');
+form.addEventListener('input', throttle(onFormData, 500));
+form.addEventListener('submit', onSubmitForm);
 
-loadForm();
+const formData = {};
 
-formEl.addEventListener('input', _throttle(onSaveFormInput, 500));
-
-formEl.addEventListener('submit', onFormSubmit);
-
-function onSaveFormInput(event) {
-  data = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || {};
-
-  data[event.target.name] = event.target.value;
-
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+function onFormData(e) {
+  formData[e.target.name] = e.target.value;
+  localStorage.setItem('feedback-form-state', JSON.stringify(formData));
 }
 
-function onFormSubmit(event) {
-  event.preventDefault();
-  if (!event.target.email.value || !event.target.message.value) {
-    alert('Enter all data');
-    return;
+function onSubmitForm(e) {
+  console.log(JSON.parse(localStorage.getItem('feedback-form-state')));
+  e.preventDefault();
+  e.currentTarget.reset();
+  localStorage.removeItem('feedback-form-state');
+}
+
+(function dataFromLocalStorage() {
+  const data = JSON.parse(localStorage.getItem('feedback-form-state'));
+  const email = document.querySelector('.feedback-form input');
+  const message = document.querySelector('.feedback-form textarea');
+  if (data) {
+    email.value = data.email;
+    message.value = data.message;
   }
-
-  event.target.reset();
-  console.log(data);
-  localStorage.removeItem(LOCAL_STORAGE_KEY);
-}
-
-function loadForm() {
-  try {
-    let formLoad = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
-    if (!formLoad) {
-      return;
-    }
-
-    data = formLoad;
-    formEl.email.value = data.email || '';
-    formEl.message.value = data.message || '';
-  } catch (error) {
-    console.error('Error.message ', error.message);
-  }
-}
+})();
